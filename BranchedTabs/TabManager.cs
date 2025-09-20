@@ -48,7 +48,7 @@ namespace BranchedTabs
             _documentEvents.DocumentClosing += OnDocumentClosing;
 
             _dte.Events.SolutionEvents.Opened += OnSolutionOpened;
-            _dte.Events.SolutionEvents.AfterClosing += OnSolutionClosed;
+            _dte.Events.SolutionEvents.BeforeClosing += OnSolutionClosing;
 
             if (_dte.Solution.IsOpen)
             {
@@ -138,10 +138,9 @@ namespace BranchedTabs
             StartWatchingBranchChanges();
         }
 
-        private void OnSolutionClosed()
+        private void OnSolutionClosing()
         {
             var path = _solutionPath;
-            _solutionPath = null;
 
             if (!IsFeatureEnabled() || string.IsNullOrEmpty(path))
                 return;
@@ -154,6 +153,7 @@ namespace BranchedTabs
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                     SaveTabsForCurrentBranch();
+                     _solutionPath = null;
                 });
             });
         }
